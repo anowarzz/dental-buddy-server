@@ -26,9 +26,16 @@ async function run () {
         const serviceCollection = client.db('dentalBuddy').collection('services')
 
 
-        //Services API - Loading All Services from DB
+        //Services API - Loading Only 3  Services for Home Page from DB
+        app.get('/top-services', async(req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query)
+            const services = await cursor.limit(3).toArray();
+            res.send(services)
+        })
 
-        app.get('/services', async(req, res) => {
+        //Services API - Loading All services  from DB
+        app.get('/all-services', async(req, res) => {
             const query = {};
             const cursor = serviceCollection.find(query)
             const services = await cursor.toArray();
