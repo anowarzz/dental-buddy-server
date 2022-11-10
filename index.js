@@ -29,7 +29,7 @@ async function run () {
         //Services API - Loading Only 3  Services for Home Page from DB
         app.get('/top-services', async(req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query)
+            const cursor = serviceCollection.find(query).sort({'created': -1})
             const services = await cursor.limit(3).toArray();
             res.send(services)
         })
@@ -37,7 +37,7 @@ async function run () {
         //Services API - Loading All services  from DB
         app.get('/services', async(req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query)
+            const cursor = serviceCollection.find(query).sort({'created': -1})
             const services = await cursor.toArray();
             res.send(services)
         })
@@ -70,10 +70,10 @@ async function run () {
             res.send(result)
         })
 
-        // Loading Reviews From DB 
+        // Loading Service Reviews From DB 
         app.get('/reviews', async(req, res) => {
             const query = {}
-            const cursor = reviewCollection.find(query);
+            const cursor = reviewCollection.find(query).sort({'created': -1});
             const reviews = await cursor.toArray();
             res.send(reviews)
         })
@@ -89,9 +89,19 @@ async function run () {
                     email:req.query.email
                 }
             }
-            const cursor = reviewCollection.find(query)
+            const cursor = reviewCollection.find(query).sort({'created': -1});
             const reviews = await cursor.toArray();
             res.send(reviews)
+        })
+
+        // Deleting One review
+        app.delete('/reviews/:id', async (req, res) => {
+            console.log(req.params);
+            
+            const id = req.params.id
+            const query = {_id: ObjectId(id)}
+            const result = await reviewCollection.deleteOne(query)
+            res.send(result)
         })
 
     }
