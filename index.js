@@ -80,8 +80,10 @@ async function run () {
 
         // Loading My reviews using email
 
-        app.get('/reviews', async(req, res) => {
+        app.get('/myReviews', async(req, res) => {
+            console.log(req);
             let query = {}
+            
             if(req.query.email){
                 query = {
                     email:req.query.email
