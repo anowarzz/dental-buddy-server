@@ -24,7 +24,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run () {
     try {
         const serviceCollection = client.db('dentalBuddy').collection('services')
-
+        const reviewCollection = client.db('dentalBuddy').collection('reviews')
 
         //Services API - Loading Only 3  Services for Home Page from DB
         app.get('/top-services', async(req, res) => {
@@ -55,6 +55,42 @@ async function run () {
             
         })
 
+        // Adding A Service To DB
+        app.post('/services', async(req, res) => {
+            const service = req.body;
+            const result = await serviceCollection.insertOne(service)
+            res.send(result)
+            
+        })
+
+        // Adding Reviews to DB
+        app.post('/reviews', async(req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review)
+            res.send(result)
+        })
+
+        // Loading Reviews From DB 
+        app.get('/reviews', async(req, res) => {
+            const query = {}
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+        })
+
+        // Loading My reviews using email
+
+        app.get('/reviews', async(req, res) => {
+            let query = {}
+            if(req.query.email){
+                query = {
+                    email:req.query.email
+                }
+            }
+            const cursor = reviewCollection.find(query)
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+        })
 
     }
 
