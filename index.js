@@ -108,11 +108,10 @@ async function run() {
 
     // Loading My reviews using email
     app.get("/myReviews", verifyJWT, async (req, res) => {
-
-      const decoded = req.decoded;
-      if (decoded.email !== req.query.email) {
-        return res.send(403).send({ message: "Unauthorized Access" });
-      }
+        const decoded = req.decoded;
+        if (decoded.email !== req.query.email) {
+          return res.send(403).send({ message: "Unauthorized Access" });
+        }
 
       let query = {};
 
@@ -126,14 +125,9 @@ async function run() {
       res.send(reviews);
     });
 
-    // Deleting One review
-    app.delete("/reviews/:id", verifyJWT async (req, res) => {
-      console.log(req.params);
 
-      const decoded = req.decoded;
-      if (decoded.email !== req.query.email) {
-        return res.send(403).send({ message: "Unauthorized Access" });
-      }
+    // Deleting One review
+    app.delete("/reviews/:id", verifyJWT, async (req, res) => {
 
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
