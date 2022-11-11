@@ -108,10 +108,10 @@ async function run() {
 
     // Loading My reviews using email
     app.get("/myReviews", verifyJWT, async (req, res) => {
-        const decoded = req.decoded;
-        if (decoded.email !== req.query.email) {
-          return res.send(403).send({ message: "Unauthorized Access" });
-        }
+      const decoded = req.decoded;
+      if (decoded.email !== req.query.email) {
+        return res.send(403).send({ message: "Unauthorized Access" });
+      }
 
       let query = {};
 
@@ -125,10 +125,8 @@ async function run() {
       res.send(reviews);
     });
 
-
     // Deleting One review
     app.delete("/reviews/:id", verifyJWT, async (req, res) => {
-
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
@@ -136,16 +134,21 @@ async function run() {
     });
 
     // Editing One Review
-    app.patch("/reviews/id", async (req, res) => {
+    app.put("/reviews/:id", async (req, res) => {
       const id = req.params.id;
-      const reviewText = req.body.reviewText;
-      const query = { _id: ObjectId(id) };
-      const updatedDoc = {
+      const filter = { _id: ObjectId(id) };
+      const reviewText = req.body.reviewText;      
+      option = { upsert: true };
+      const updatedReview = {
         $set: {
           reviewText: reviewText,
         },
       };
-      const result = await reviewCollection.updateOne(query, updatedDoc);
+      const result = await reviewCollection.updateOne(
+        filter,
+        updatedReview,
+        option
+      );
       res.send(result);
     });
   } finally {
