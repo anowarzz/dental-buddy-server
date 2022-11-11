@@ -4,7 +4,7 @@ require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
-
+var jwt = require('jsonwebtoken');
 
 // Middle Wares
 app.use(cors());
@@ -24,7 +24,19 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run () {
     try {
         const serviceCollection = client.db('dentalBuddy').collection('services')
+
         const reviewCollection = client.db('dentalBuddy').collection('reviews')
+
+        // JWT Token
+
+       app.post('/jwt', (req, res) => {
+        const user = req.body;
+        const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
+        res.send({token})
+       }) 
+
+
+
 
         //Services API - Loading Only 3  Services for Home Page from DB
         app.get('/top-services', async(req, res) => {
@@ -70,16 +82,21 @@ async function run () {
             res.send(result)
         })
 
-        // Loading Service Reviews From DB 
-        app.get('/reviews', async(req, res) => {
-            const query = {}
+        // Loading Service Reviews From DB Using Service Id 
+        app.get('/serviceReviews', async(req, res) => {
+            console.log(req.headers);
+            let query = {}
+            if(req.query.serviceId){
+                query = {
+                    serviceId: req.query.serviceId
+                }
+            }
             const cursor = reviewCollection.find(query).sort({'created': -1});
             const reviews = await cursor.toArray();
             res.send(reviews)
         })
 
         // Loading My reviews using email
-
         app.get('/myReviews', async(req, res) => {
             console.log(req);
             let query = {}
@@ -103,7 +120,20 @@ async function run () {
             const result = await reviewCollection.deleteOne(query)
             res.send(result)
         })
-
+        
+        // Editing One Review
+        app.patch('/reviews/id', async(req, res) => {
+            const id = req.params.id;
+            const reviewText = req.body.reviewText
+            const query = {_id: ObjectId(id)}
+            const updatedDoc = {
+                $set:{
+                    reviewText : reviewText
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc);
+            res.send(result)
+        })
     }
 
 
